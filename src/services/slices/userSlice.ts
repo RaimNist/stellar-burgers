@@ -75,6 +75,12 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await logoutApi();
+      try {
+        localStorage.removeItem('refreshToken');
+        setCookie('accessToken', '', { expires: -1 });
+      } catch (e) {
+        // ignore
+      }
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue(error.message);
@@ -172,12 +178,6 @@ export const userSlice = createSlice({
         state.isLoading = false;
         state.user = null;
         state.isAuth = false;
-        try {
-          localStorage.removeItem('refreshToken');
-          setCookie('accessToken', '', { expires: -1 });
-        } catch (e) {
-          // ignore
-        }
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.isLoading = false;

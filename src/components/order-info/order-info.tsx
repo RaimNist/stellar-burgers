@@ -10,8 +10,10 @@ export const OrderInfo: FC = () => {
   /** TODO: взять переменные orderData и ingredients из стора */
   const { number } = useParams();
 
-  const orderData = useSelector((state) =>
-    state.feed.orders.find((item) => item.number === Number(number))
+  const orderData = useSelector(
+    (state) =>
+      state.feed.orders.find((item) => item.number === Number(number)) ||
+      state.orders.orders.find((item) => item.number === Number(number))
   );
 
   const ingredients: TIngredient[] = useSelector(

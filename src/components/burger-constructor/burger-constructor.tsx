@@ -63,7 +63,6 @@ export const BurgerConstructor: FC = () => {
     navigate(location.pathname, {
       state: { ...location.state, showOrderModal: false }
     });
-    dispatch(clearConstructor());
   };
 
   const shouldShowModal = location.state?.showOrderModal;

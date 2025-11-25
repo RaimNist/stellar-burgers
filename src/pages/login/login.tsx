@@ -1,12 +1,13 @@
-import { FC, SyntheticEvent, useState } from 'react';
+import { FC, SyntheticEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from '../../services/store';
 import { loginUser } from '../../services/slices/userSlice';
 import { LoginUI } from '@ui-pages';
+import { useForm } from '../../hooks/useForm';
 
 export const Login: FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { values, handleChange } = useForm({ email: '', password: '' });
+  const { email, password } = values;
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -26,9 +27,17 @@ export const Login: FC = () => {
     <LoginUI
       errorText={error || ''}
       email={email}
-      setEmail={setEmail}
+      setEmail={(v: string) => {
+        handleChange({
+          target: { name: 'email', value: v }
+        } as React.ChangeEvent<HTMLInputElement>);
+      }}
       password={password}
-      setPassword={setPassword}
+      setPassword={(v: string) => {
+        handleChange({
+          target: { name: 'password', value: v }
+        } as React.ChangeEvent<HTMLInputElement>);
+      }}
       handleSubmit={handleSubmit}
     />
   );
