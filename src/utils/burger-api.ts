@@ -43,13 +43,20 @@ export const fetchWithRefresh = async <T>(
     const res = await fetch(url, options);
     return await checkResponse<T>(res);
   } catch (err) {
-    if ((err as { message: string }).message === 'jwt expired') {
+    const error = err as { message: string; statusCode?: number };
+
+    if (error.message === 'jwt expired' || error.statusCode === 401) {
       const refreshData = await refreshToken();
-      if (options.headers) {
-        (options.headers as { [key: string]: string }).authorization =
-          refreshData.accessToken;
-      }
-      const res = await fetch(url, options);
+
+      const newOptions = {
+        ...options,
+        headers: {
+          ...options.headers,
+          authorization: `Bearer ${refreshData.accessToken}`
+        }
+      };
+
+      const res = await fetch(url, newOptions);
       return await checkResponse<T>(res);
     } else {
       return Promise.reject(err);
@@ -87,29 +94,42 @@ export const getFeedsApi = () =>
       return Promise.reject(data);
     });
 
-export const getOrdersApi = () =>
-  fetchWithRefresh<TFeedsResponse>(`${URL}/orders`, {
+export const getOrdersApi = () => {
+  const accessToken = getCookie('accessToken');
+
+  if (!accessToken) {
+    return Promise.reject(new Error('No access token'));
+  }
+
+  return fetchWithRefresh<TFeedsResponse>(`${URL}/orders`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
-      authorization: getCookie('accessToken')
+      authorization: `Bearer ${accessToken}`
     } as HeadersInit
   }).then((data) => {
     if (data?.success) return data.orders;
     return Promise.reject(data);
   });
+};
 
 type TNewOrderResponse = TServerResponse<{
   order: TOrder;
   name: string;
 }>;
 
-export const orderBurgerApi = (data: string[]) =>
-  fetchWithRefresh<TNewOrderResponse>(`${URL}/orders`, {
+export const orderBurgerApi = (data: string[]) => {
+  const accessToken = getCookie('accessToken');
+
+  if (!accessToken) {
+    return Promise.reject(new Error('No access token'));
+  }
+
+  return fetchWithRefresh<TNewOrderResponse>(`${URL}/orders`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
-      authorization: getCookie('accessToken')
+      authorization: `Bearer ${accessToken}`
     } as HeadersInit,
     body: JSON.stringify({
       ingredients: data
@@ -118,6 +138,7 @@ export const orderBurgerApi = (data: string[]) =>
     if (data?.success) return data;
     return Promise.reject(data);
   });
+};
 
 type TOrderResponse = TServerResponse<{
   orders: TOrder[];
@@ -172,7 +193,11 @@ export const loginUserApi = (data: TLoginData) =>
   })
     .then((res) => checkResponse<TAuthResponse>(res))
     .then((data) => {
-      if (data?.success) return data;
+      if (data?.success) {
+        setCookie('accessToken', data.accessToken.split('Bearer ')[1]);
+        localStorage.setItem('refreshToken', data.refreshToken);
+        return data;
+      }
       return Promise.reject(data);
     });
 
@@ -208,8 +233,12 @@ type TUserResponse = TServerResponse<{ user: TUser }>;
 
 export const getUserApi = () =>
   fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
+    method: 'GET',
     headers: {
+      'Content-Type': 'application/json;charset=utf-8',
       authorization: getCookie('accessToken')
+        ? `Bearer ${getCookie('accessToken')}`
+        : ''
     } as HeadersInit
   });
 
@@ -219,6 +248,8 @@ export const updateUserApi = (user: Partial<TRegisterData>) =>
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
       authorization: getCookie('accessToken')
+        ? `Bearer ${getCookie('accessToken')}`
+        : ''
     } as HeadersInit,
     body: JSON.stringify(user)
   });
@@ -232,4 +263,13 @@ export const logoutApi = () =>
     body: JSON.stringify({
       token: localStorage.getItem('refreshToken')
     })
-  }).then((res) => checkResponse<TServerResponse<{}>>(res));
+  })
+    .then((res) => checkResponse<TServerResponse<{}>>(res))
+    .then((data) => {
+      if (data?.success) {
+        setCookie('accessToken', '', { expires: -1 });
+        localStorage.removeItem('refreshToken');
+        return data;
+      }
+      return Promise.reject(data);
+    });

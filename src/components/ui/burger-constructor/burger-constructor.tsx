@@ -26,7 +26,7 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
           isLocked
           text={`${constructorItems.bun.name} (верх)`}
           price={constructorItems.bun.price}
-          thumbnail={constructorItems.bun.image}
+          thumbnail={constructorItems.bun.image_mobile}
         />
       </div>
     ) : (
@@ -63,7 +63,11 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
           isLocked
           text={`${constructorItems.bun.name} (низ)`}
           price={constructorItems.bun.price}
-          thumbnail={constructorItems.bun.image}
+          thumbnail={
+            constructorItems.bun.image_mobile ||
+            constructorItems.bun.image ||
+            constructorItems.bun.image_large
+          }
         />
       </div>
     ) : (
@@ -84,22 +88,20 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
         size='large'
         children='Оформить заказ'
         onClick={onOrderClick}
+        disabled={
+          !constructorItems.bun || constructorItems.ingredients.length === 0
+        }
       />
     </div>
 
-    {orderRequest && (
+    {orderRequest ? (
       <Modal onClose={closeOrderModal} title={'Оформляем заказ...'}>
         <Preloader />
       </Modal>
-    )}
-
-    {orderModalData && (
-      <Modal
-        onClose={closeOrderModal}
-        title={orderRequest ? 'Оформляем заказ...' : ''}
-      >
+    ) : orderModalData ? (
+      <Modal onClose={closeOrderModal} title=''>
         <OrderDetailsUI orderNumber={orderModalData.number} />
       </Modal>
-    )}
+    ) : null}
   </section>
 );

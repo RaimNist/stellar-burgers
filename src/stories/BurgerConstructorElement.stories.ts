@@ -1,4 +1,5 @@
 import { BurgerConstructorElementUI } from '@ui';
+import type { TConstructorIngredient } from '../utils/types';
 import type { Meta, StoryObj } from '@storybook/react';
 import { totalmem } from 'os';
 
@@ -31,7 +32,7 @@ export const DefaultElement: Story = {
       image: '',
       image_large: '',
       image_mobile: ''
-    },
+    } as TConstructorIngredient,
     index: 0,
     totalItems: 1,
     handleMoveUp: () => {},
