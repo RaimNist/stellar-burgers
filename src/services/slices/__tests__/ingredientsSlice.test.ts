@@ -1,4 +1,4 @@
-import reducer, { fetchIngredients } from '../ingredientsSlice';
+import reducer, { fetchIngredients, initialState } from '../ingredientsSlice';
 
 // лёгкий мок под ингры (взято с твоих данных, но не 1-в-1)
 const mockItems = [
@@ -31,14 +31,8 @@ const mockItems = [
 ];
 
 describe('ingredientsSlice', () => {
-  const start = {
-    isLoading: false,
-    items: [],
-    error: null
-  };
-
   it('pending', () => {
-    const next = reducer(start, fetchIngredients.pending('', undefined));
+    const next = reducer(initialState, fetchIngredients.pending('', undefined));
 
     expect(next.isLoading).toBe(true);
     expect(next.error).toBeNull();
@@ -47,7 +41,7 @@ describe('ingredientsSlice', () => {
 
   it('fulfilled', () => {
     const next = reducer(
-      start,
+      initialState,
       fetchIngredients.fulfilled(mockItems, '', undefined)
     );
 
@@ -58,7 +52,7 @@ describe('ingredientsSlice', () => {
 
   it('rejected', () => {
     const next = reducer(
-      start,
+      initialState,
       fetchIngredients.rejected(new Error('x'), '', undefined, 'ERROR')
     );
 

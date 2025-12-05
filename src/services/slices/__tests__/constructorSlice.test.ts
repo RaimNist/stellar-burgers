@@ -2,7 +2,8 @@ import reducer, {
   addIngredient,
   removeIngredient,
   moveIngredient,
-  clearConstructor
+  clearConstructor,
+  initialState
 } from '../constructorSlice';
 
 const bunMock = {
@@ -34,19 +35,14 @@ const mainMock = {
 };
 
 describe('constructorSlice ', () => {
-  const baseState = {
-    bun: null,
-    ingredients: []
-  };
-
   it('Корректно добавляет булку', () => {
-    const next = reducer(baseState, addIngredient(bunMock));
+    const next = reducer(initialState, addIngredient(bunMock));
     expect(next.bun).toEqual(bunMock);
     expect(next.ingredients.length).toBe(0);
   });
-  
+
   it('Корректно добавляет начинку', () => {
-    const next = reducer(baseState, addIngredient(mainMock));
+    const next = reducer(initialState, addIngredient(mainMock));
 
     expect(next.ingredients.length).toBe(1);
     const item = next.ingredients[0];
@@ -80,12 +76,9 @@ describe('constructorSlice ', () => {
       ]
     };
 
-    const next = reducer(
-      state,
-      moveIngredient({ from: 0, to: 1 })
-    );
+    const next = reducer(state, moveIngredient({ from: 0, to: 1 }));
 
-    expect(next.ingredients.map(i => i.id)).toEqual(['2', '1', '3']);
+    expect(next.ingredients.map((i) => i.id)).toEqual(['2', '1', '3']);
   });
 
   it('Сброс конструктора', () => {

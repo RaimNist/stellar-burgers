@@ -1,4 +1,8 @@
-import reducer, { createOrder, fetchOrders } from '../ordersSlice';
+import reducer, {
+  createOrder,
+  fetchOrders,
+  initialState
+} from '../ordersSlice';
 
 // Лёгкие моки под заказ
 const mockOrder = {
@@ -25,15 +29,9 @@ const mockOrdersArray = [
 ];
 
 describe('ordersSlice', () => {
-  const base = {
-    orders: [],
-    isLoading: false,
-    error: null
-  };
-
   describe('createOrder', () => {
     it('pending', () => {
-      const next = reducer(base, createOrder.pending('', ['id1']));
+      const next = reducer(initialState, createOrder.pending('', ['id1']));
 
       expect(next.isLoading).toBe(true);
       expect(next.error).toBeNull();
@@ -42,7 +40,7 @@ describe('ordersSlice', () => {
 
     it('fulfilled', () => {
       const next = reducer(
-        base,
+        initialState,
         createOrder.fulfilled(mockOrder, '', ['id1', 'id2'])
       );
 
@@ -53,7 +51,7 @@ describe('ordersSlice', () => {
 
     it('rejected', () => {
       const next = reducer(
-        base,
+        initialState,
         createOrder.rejected(new Error('x'), '', ['id1'], 'ERROR')
       );
 
@@ -64,7 +62,7 @@ describe('ordersSlice', () => {
 
   describe('fetchOrders', () => {
     it('pending', () => {
-      const next = reducer(base, fetchOrders.pending('', undefined));
+      const next = reducer(initialState, fetchOrders.pending('', undefined));
 
       expect(next.isLoading).toBe(true);
       expect(next.error).toBeNull();
@@ -72,7 +70,7 @@ describe('ordersSlice', () => {
 
     it('fulfilled', () => {
       const next = reducer(
-        base,
+        initialState,
         fetchOrders.fulfilled(mockOrdersArray, '', undefined)
       );
 
@@ -83,7 +81,7 @@ describe('ordersSlice', () => {
 
     it('rejected', () => {
       const next = reducer(
-        base,
+        initialState,
         fetchOrders.rejected(new Error('x'), '', undefined, 'ERROR')
       );
 

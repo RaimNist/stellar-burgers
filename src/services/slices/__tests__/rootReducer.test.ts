@@ -8,7 +8,10 @@ describe('root reducer / store initialization', () => {
     expect(state).toHaveProperty('orders');
     expect(state).toHaveProperty('feed');
     expect(state).toHaveProperty('burgerConstructor');
-    
-    expect(state.burgerConstructor).toMatchObject({ bun: null, ingredients: [] });
+
+    expect(state.burgerConstructor).toMatchObject({
+      bun: null,
+      ingredients: []
+    });
   });
 });

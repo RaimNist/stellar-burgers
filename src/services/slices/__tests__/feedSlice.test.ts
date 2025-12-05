@@ -1,4 +1,4 @@
-import reducer, { fetchFeed } from '../feedSlice';
+import reducer, { fetchFeed, initialState } from '../feedSlice';
 
 // мок ответа сервера
 const mockFeedData = {
@@ -28,16 +28,8 @@ const mockFeedData = {
 };
 
 describe('feedSlice', () => {
-  const initial = {
-    orders: [],
-    isLoading: false,
-    error: null,
-    total: 0,
-    totalToday: 0
-  };
-
   it('pending', () => {
-    const next = reducer(initial, fetchFeed.pending('', undefined));
+    const next = reducer(initialState, fetchFeed.pending('', undefined));
 
     expect(next.isLoading).toBe(true);
     expect(next.error).toBe(null);
@@ -45,7 +37,10 @@ describe('feedSlice', () => {
   });
 
   it('fulfilled', () => {
-    const next = reducer(initial, fetchFeed.fulfilled(mockFeedData, '', undefined));
+    const next = reducer(
+      initialState,
+      fetchFeed.fulfilled(mockFeedData, '', undefined)
+    );
 
     expect(next.isLoading).toBe(false);
     expect(next.orders.length).toBe(2);
@@ -56,7 +51,7 @@ describe('feedSlice', () => {
 
   it('rejected', () => {
     const next = reducer(
-      initial,
+      initialState,
       fetchFeed.rejected(new Error('fail'), '', undefined, 'ERROR')
     );
 
