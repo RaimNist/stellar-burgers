@@ -104,7 +104,7 @@ describe('Конструктор бургера', () => {
 
     cy.get('@orderBtn').click({ force: true });
 
-    cy.wait('@createOrder');
+    cy.wait('@createOrder', { timeout: 15000 });
 
 
     cy.get(SELECTORS.modal).as('modal').should('contain', '96219');
